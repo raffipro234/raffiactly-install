@@ -1,143 +1,184 @@
 #!/bin/bash
 
-# --- Variabel Warna (Nebula Space Theme) ---
+# Color
 BLUE='\033[0;34m'       
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[0;33m'
-PURPLE='\033[0;35m'
-CYAN='\033[0;36m'
-WHITE='\033[1;37m'
 NC='\033[0m'
 
-# --- 1. Tampilan Welcome (Branding Raffiactly) ---
+# Display welcome message
 display_welcome() {
-  clear
-  echo -e "${PURPLE}[+] =============================================== [+]${NC}"
-  echo -e "${PURPLE}[+]                                                 [+]${NC}"
-  echo -e "${CYAN}[+]                AUTO INSTALLER THEME             [+]${NC}"
-  echo -e "${CYAN}[+]                © RAFFIACTLY PROJECT             [+]${NC}"
-  echo -e "${PURPLE}[+]                                                 [+]${NC}"
-  echo -e "${PURPLE}[+] =============================================== [+]${NC}"
   echo -e ""
-  echo -e "${WHITE}Script ini dibuat untuk mempermudah instalasi tema Pterodactyl.${NC}"
-  echo -e "${RED}DILARANG KERAS MEMPERJUALBELIKAN TANPA IZIN OWNER!${NC}"
+  echo -e "${BLUE}[+] =============================================== [+]${NC}"
+  echo -e "${BLUE}[+]                                                 [+]${NC}"
+  echo -e "${WHITE}[+]                AUTO INSTALLER THEMA             [+]${NC}"
+  echo -e "${WHITE}[+]                  © RAFFIACTLY                   [+]${NC}"
+  echo -e "${BLUE}[+]                                                 [+]${NC}"
+  echo -e "${BLUE}[+] =============================================== [+]${NC}"
   echo -e ""
-  echo -e "${CYAN}𝗧𝗘𝗟𝗘𝗚𝗥𝗔𝗠 :${NC} @Raffioffci2"
-  echo -e "${CYAN}𝗖𝗥𝗘𝗗𝗜𝗧𝗦  :${NC} @Raffioffci2"
+  echo -e "script ini di buat untuk mempermudah penginstalasian thema pterodactyle,"
+  echo -e "dilarang keras untuk dikasih gratis."
+  echo -e ""
+  echo -e "𝗧𝗘𝗟𝗘𝗚𝗥𝗔𝗠 :"
+  echo -e "@Raffioffci2"
+  echo -e "𝗖𝗥𝗘𝗗𝗜𝗧𝗦 :"
+  echo -e "@Raffioffci2"
   sleep 4
-}
-
-# --- 2. Install Dependensi ---
-install_jq() {
-  echo -e "${BLUE}[+] =============================================== [+]${NC}"
-  echo -e "${BLUE}[+]             UPDATE & INSTALL DEPENDENCY         [+]${NC}"
-  echo -e "${BLUE}[+] =============================================== [+]${NC}"
-  sudo apt update && sudo apt install -y jq unzip wget curl
   clear
 }
 
-# --- 3. Cek Token Akses ---
+#Update and install jq
+install_jq() {
+  echo -e "                                                       "
+  echo -e "${BLUE}[+] =============================================== [+]${NC}"
+  echo -e "${BLUE}[+]             UPDATE & INSTALL JQ                 [+]${NC}"
+  echo -e "${BLUE}[+] =============================================== [+]${NC}"
+  echo -e "                                                       "
+  sudo apt update && sudo apt install -y jq
+  if [ $? -eq 0 ]; then
+    echo -e "                                                       "
+    echo -e "${GREEN}[+] =============================================== [+]${NC}"
+    echo -e "${GREEN}[+]              INSTALL JQ BERHASIL                [+]${NC}"
+    echo -e "${GREEN}[+] =============================================== [+]${NC}"
+  else
+    echo -e "                                                       "
+    echo -e "${RED}[+] =============================================== [+]${NC}"
+    echo -e "${RED}[+]              INSTALL JQ GAGAL                   [+]${NC}"
+    echo -e "${RED}[+] =============================================== [+]${NC}"
+    exit 1
+  fi
+  echo -e "                                                       "
+  sleep 1
+  clear
+}
+
+#Check user token
 check_token() {
+  echo -e "                                                       "
   echo -e "${BLUE}[+] =============================================== [+]${NC}"
-  echo -e "${BLUE}[+]               LICENSE RAFFIACTLY               [+]${NC}"
+  echo -e "${BLUE}[+]               LICENSY RAFFIACTLY               [+]${NC}"
   echo -e "${BLUE}[+] =============================================== [+]${NC}"
-  echo -e ""
-  echo -e "${YELLOW}MASUKKAN AKSES TOKEN :${NC}"
+  echo -e "                                                       "
+  echo -e "${YELLOW}MASUKAN AKSES TOKEN :${NC}"
   read -r USER_TOKEN
 
   if [ "$USER_TOKEN" = "raffi" ]; then
-    echo -e "${GREEN}[✔] AKSES BERHASIL! Selamat Datang Raffi.${NC}"
-    sleep 2
+    echo -e "${GREEN}AKSES BERHASIL${NC}}"
   else
-    echo -e "${RED}[✘] TOKEN SALAH! Hubungi @Raffioffci2 untuk membeli akses.${NC}"
-    echo -e "${YELLOW}Harga Token : 10K (Free Update)${NC}"
+    echo -e "${RED}Token Salah! Hubungi @Raffioffci2${NC}"
     exit 1
   fi
   clear
 }
 
-# --- 4. Fungsi Install Tema ---
+# Install theme
 install_theme() {
   while true; do
+    echo -e "                                                       "
     echo -e "${BLUE}[+] =============================================== [+]${NC}"
-    echo -e "${WHITE}[+]               SELECT RAFFIACTLY THEME           [+]${NC}"
+    echo -e "${WHITE}[+]                   SELECT THEME                  [+]${NC}"
     echo -e "${BLUE}[+] =============================================== [+]${NC}"
-    echo -e "PILIH TEMA YANG INGIN DI INSTALL:"
-    echo "1. Raffiactly Stellar (Stellar Based)"
-    echo "2. Raffiactly Enigma (Enigma Based)"
-    echo "x. Kembali"
-    echo -ne "Masukkan pilihan (1/2/x): "
+    echo -e "                                                       "
+    echo -e "PILIH THEME YANG INGIN DI INSTALL"
+    echo "1. Raffiactly Stellar"
+    echo "2. Raffiactly Billing"
+    echo "3. Raffiactly Enigma"
+    echo "x. kembali"
+    echo -e "masukan pilihan (1/2/3/x) :"
     read -r SELECT_THEME
-    
     case "$SELECT_THEME" in
       1)
         THEME_URL="https://github.com/gitfdil1248/thema/raw/main/C2.zip"
         break
         ;;
       2)
-        THEME_URL="https://github.com/gitfdil1248/thema/raw/main/C3.zip"
+        THEME_URL="https://github.com/gitfdil1248/thema/raw/main/C1.zip"
         break
         ;;
-      x) return ;;
-      *) echo -e "${RED}Pilihan tidak valid!${NC}" ;;
+      3)
+        THEME_URL="https://github.com/gitfdil1248/thema/raw/main/C3.zip"
+        break
+        ;; 
+      x)
+        return
+        ;;
+      *)
+        echo -e "${RED}Pilihan tidak valid, silahkan coba lagi.${NC}"
+        ;;
     esac
   done
-
-  # Proses Inti
-  cd /var/www/pterodactyl || { echo -e "${RED}Pterodactyl tidak ditemukan!${NC}"; exit 1; }
   
-  # Hapus folder lama jika ada
-  sudo rm -rf /root/pterodactyl
+  if [ -e /root/pterodactyl ]; then
+    sudo rm -rf /root/pterodactyl
+  fi
+  wget -q "$THEME_URL"
+  sudo unzip -o "$(basename "$THEME_URL")"
   
-  echo -e "${CYAN}[+] Mendownload Tema...${NC}"
-  wget -q -O /root/theme_raffi.zip "$THEME_URL"
-  unzip -o /root/theme_raffi.zip -d /root/
+  echo -e "                                                       "
+  echo -e "${BLUE}[+] =============================================== [+]${NC}"
+  echo -e "${BLUE}[+]                  INSTALLASI THEMA               [+]${NC}"
+  echo -e "${BLUE}[+] =============================================== [+]${NC}"
+  echo -e "                                                                   "
   
-  echo -e "${CYAN}[+] Menyalin File Tema...${NC}"
   sudo cp -rfT /root/pterodactyl /var/www/pterodactyl
-  
-  echo -e "${YELLOW}[+] Memulai Build Panel (Mohon Tunggu)...${NC}"
   curl -sL https://deb.nodesource.com/setup_16.x | sudo -E bash -
   sudo apt install -y nodejs
   sudo npm i -g yarn
-  
-  yarn install
+  cd /var/www/pterodactyl
   yarn add react-feather
-  php artisan migrate
+  php artisan migrate --force
   yarn build:production
   php artisan view:clear
+  sudo chown -R www-data:www-data /var/www/pterodactyl/*
   
-  # Cleanup
-  sudo rm /root/theme_raffi.zip
-  sudo rm -rf /root/pterodactyl
-  
-  echo -e "${GREEN}[✔] INSTALL RAFFIACTLY SUCCESS!${NC}"
-  sleep 3
+  echo -e "                                                       "
+  echo -e "${GREEN}[+] =============================================== [+]${NC}"
+  echo -e "${GREEN}[+]                   INSTALL SUCCESS               [+]${NC}"
+  echo -e "${GREEN}[+] =============================================== [+]${NC}"
+  echo -e ""
+  sleep 2
+  clear
 }
 
-# --- 5. Fungsi Create Node ---
+# Install Wings
+install_wings() {
+  echo -e "                                                       "
+  echo -e "${BLUE}[+] =============================================== [+]${NC}"
+  echo -e "${BLUE}[+]                    INSTALL WINGS                 [+]${NC}"
+  echo -e "${BLUE}[+] =============================================== [+]${NC}"
+  echo -e "                                                       "
+  curl -sSL https://get.pterodactyl.io | bash -s -- --install-wings
+  echo -e "${GREEN}WINGS BERHASIL DI INSTALL${NC}"
+  sleep 2
+  clear
+}
+
+# Create Node
 create_node() {
+  echo -e "                                                       "
   echo -e "${BLUE}[+] =============================================== [+]${NC}"
-  echo -e "${BLUE}[+]                CREATE NODE & LOC                [+]${NC}"
+  echo -e "${BLUE}[+]                    CREATE NODE                     [+]${NC}"
   echo -e "${BLUE}[+] =============================================== [+]${NC}"
+  echo -e "                                                       "
   
-  read -p "Masukkan nama lokasi: " loc_name
-  read -p "Masukkan deskripsi: " loc_desc
+  read -p "Masukkan nama lokasi: " location_name
+  read -p "Masukkan deskripsi lokasi: " location_description
   read -p "Masukkan domain/IP: " domain
   read -p "Masukkan nama node: " node_name
   read -p "Masukkan RAM (MB): " ram
-  read -p "Masukkan Disk (MB): " disk
+  read -p "Masukkan Disk (MB): " disk_space
 
   cd /var/www/pterodactyl || exit
+
   php artisan p:location:make <<EOF
-$loc_name
-$loc_desc
+$location_name
+$location_description
 EOF
 
   php artisan p:node:make <<EOF
 $node_name
-$loc_desc
+$location_description
 1
 https
 $domain
@@ -146,38 +187,23 @@ no
 no
 $ram
 $ram
-$disk
-$disk
+$disk_space
+$disk_space
 100
 8080
 2022
 /var/lib/pterodactyl/volumes
 EOF
-  echo -e "${GREEN}[✔] Berhasil membuat Node & Lokasi!${NC}"
+
+  echo -e "                                                       "
+  echo -e "${GREEN}[+] =============================================== [+]${NC}"
+  echo -e "${GREEN}[+]        CREATE NODE & LOCATION SUKSES             [+]${NC}"
+  echo -e "${GREEN}[+] =============================================== [+]${NC}"
   sleep 2
+  clear
 }
 
-# --- 6. Fungsi Hackback ---
-hackback_panel() {
-  echo -e "${RED}[!] HACK BACK PANEL ADMIN [!]${NC}"
-  read -p "Username Baru: " user
-  read -p "Email Baru: " mail
-  read -p "Password: " pss
-  
-  cd /var/www/pterodactyl || exit
-  php artisan p:user:make <<EOF
-yes
-$mail
-$user
-$user
-$user
-$pss
-EOF
-  echo -e "${GREEN}[✔] Akun Admin $user Berhasil Ditambahkan!${NC}"
-  sleep 2
-}
-
-# --- 7. Main Menu Loop ---
+# Main script loop
 display_welcome
 install_jq
 check_token
@@ -185,32 +211,27 @@ check_token
 while true; do
   clear
   echo -e "                                                                     "
-  echo -e "${CYAN}         RAFFIACTLY AUTO INSTALLER PRIVATE      ${NC}"
-  echo -e "${PURPLE}    --------------------------------------------  ${NC}"
-  echo -e "    1. Install Raffiactly Theme"
-  echo -e "    2. Uninstall Theme (Repair)"
-  echo -e "    3. Create Node & Location"
-  echo -e "    4. Hack Back Admin Panel"
-  echo -e "    5. Ubah Password VPS"
-  echo -e "    x. Exit"
-  echo -e "${PURPLE}    --------------------------------------------  ${NC}"
-  echo -e "    WhatsApp : 62858xxxx (Update di script)"
-  echo -e "    Telegram : @Raffioffci2"
-  echo -ne "    Pilih Menu [1-5/x]: "
+  echo -e "${CYAN}                RAFFIACTLY AUTO INSTALLER             ${NC}"
+  echo -e "${BLUE}          ----------------------------------------    ${NC}"
+  echo -e "          • Telegram : @Raffioffci2                   "
+  echo -e "          • Credits  : Raffi                          "
+  echo -e "                                                                     "
+  echo -e "BERIKUT LIST INSTALL :"
+  echo "1. Install theme"
+  echo "2. Install Wings"
+  echo "3. Create Node"
+  echo "4. Uninstall theme"
+  echo "x. Exit"
+  echo -e "Masukkan pilihan 1/2/3/4/x:"
   read -r MENU_CHOICE
+  clear
 
   case "$MENU_CHOICE" in
     1) install_theme ;;
-    2) bash <(curl -s https://raw.githubusercontent.com/pterodactyl-installer/pterodactyl-installer/master/repair.sh) ;;
+    2) install_wings ;;
     3) create_node ;;
-    4) hackback_panel ;;
-    5) 
-      read -p "Masukkan PW Baru: " pwvps
-      echo "root:$pwvps" | chpasswd
-      echo -e "${GREEN}PW VPS Berhasil Diubah!${NC}"
-      sleep 2
-      ;;
+    4) bash <(curl -s https://raw.githubusercontent.com/pterodactyl-installer/pterodactyl-installer/master/repair.sh) ;;
     x) exit 0 ;;
-    *) echo -e "${RED}Pilihan tidak valid!${NC}"; sleep 1 ;;
+    *) echo "Pilihan tidak valid."; sleep 1 ;;
   esac
 done
