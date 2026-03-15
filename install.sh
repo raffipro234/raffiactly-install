@@ -28,16 +28,6 @@ install_jq() {
   clear
 }
 
-check_token() {
-  echo -e "${YELLOW}MASUKKAN AKSES TOKEN :${NC}"
-  read -r USER_TOKEN
-  if [ "$USER_TOKEN" != "raffi" ]; then
-    echo -e "${RED}Token Salah!${NC}"
-    exit 1
-  fi
-  clear
-}
-
 # --- FUNGSI INSTALL PANEL (Agar Bisa Login) ---
 install_panel() {
   echo -e "${BLUE}[+] Memulai Instalasi Panel Raffiactly...${NC}"
