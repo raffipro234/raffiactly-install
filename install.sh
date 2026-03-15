@@ -5,27 +5,47 @@ BLUE='\033[0;34m'
 CYAN='\033[0;36m'
 GREEN='\033[0;32m'
 RED='\033[0;31m'
+PURPLE='\033[0;35m'
+WHITE='\033[1;37m'
 NC='\033[0m'
 
-# --- 1. Welcome & Token Check ---
-clear
-echo -e "${BLUE}[+] =============================================== [+]${NC}"
-echo -e "${CYAN}[+]                RAFFIACTLY PROJECT               [+]${NC}"
-echo -e "${CYAN}[+]             Full Automatic Installer            [+]${NC}"
-echo -e "${BLUE}[+] =============================================== [+]${NC}"
-echo -e "Credits: @Raffioffci2"
+# --- 1. Welcome Banner Keren ---
+display_welcome() {
+  clear
+  echo -e "${CYAN}          .                                                      .${NC}"
+  echo -e "${CYAN}        .n                   .                 .                  n.${NC}"
+  echo -e "${CYAN}  .   .dP                  dP                   Bb                 9b.    .${NC}"
+  echo -e "${CYAN} 4    qXb         .       dXp     .              dBp       .        dXp    t${NC}"
+  echo -e "${CYAN} dXb  qXb         .       dXp     .              dBp       .        dXp    dXb${NC}"
+  echo -e "${BLUE} [!] =================================================================== [!]${NC}"
+  echo -e "${CYAN} [!]                 ${WHITE}🚀 RAFFIACTLY ULTIMATE PROJECT 🚀${CYAN}                 [!]"
+  echo -e "${CYAN} [!]${NC}               ${PURPLE}Powered by @Raffioffci2 | Version 1.0.0${NC}             ${CYAN}[!]${NC}"
+  echo -e "${BLUE} [!] =================================================================== [!]${NC}"
+  echo -e ""
+  echo -e "${WHITE}  - DEVELOPER :${NC} ${CYAN}Raffi${NC}"
+  echo -e "${WHITE}  - TELEGRAM  :${NC} ${CYAN}@Raffioffci2${NC}"
+  echo -e "${WHITE}  - STATUS    :${NC} ${GREEN}PREMIUM PRIVATE SCRIPT${NC}"
+  echo -e ""
+  echo -e "${BLUE} [*] Starting system initialization...${NC}"
+  sleep 3
+}
 
-# Token dari config.js bot kamu
-echo -ne "MASUKKAN AKSES TOKEN : "
-read -r USER_TOKEN
-if [ "$USER_TOKEN" != "raffi" ]; then
-    echo -e "${RED}[✘] TOKEN SALAH!${NC}"
+# --- 2. Token Check ---
+check_token() {
+  echo -ne "${YELLOW}MASUKKAN AKSES TOKEN : ${NC}"
+  read -r USER_TOKEN
+  if [ "$USER_TOKEN" != "raffi" ]; then
+    echo -e "${RED}[✘] TOKEN SALAH! HUBUNGI @Raffioffci2${NC}"
     exit 1
-fi
+  fi
+}
 
-# --- 2. Install Panel Utama ---
-echo -e "${BLUE}[+] Memulai Install Mesin Panel...${NC}"
-bash <(curl -s https://pterodactyl-installer.se) <<EOF
+# --- 3. Auto Install Panel & Branding ---
+install_panel() {
+  echo -e "${BLUE}[+] Menginstall Mesin Panel (Auto Input)...${NC}"
+  
+  # Install Pterodactyl Standar (Otomatis)
+  bash <(curl -s https://pterodactyl-installer.se) <<EOF
 0
 raffi
 raffi
@@ -35,30 +55,32 @@ Asia/Jakarta
 admin@raffi.com
 admin@raffi.com
 raffiadmin
-raffi
+Raffi
 raffi123
 $(curl -s ifconfig.me)
 EOF
 
-# --- 3. Inject Tema & Branding Raffiactly ---
-echo -e "${CYAN}[+] Menerapkan Desain Raffiactly & Fix Login...${NC}"
-cd /var/www/pterodactyl || exit
-wget -q -O raffi.zip https://github.com/gitfdil1248/thema/raw/main/C2.zip
-unzip -o raffi.zip
-cp -rfT /root/pterodactyl /var/www/pterodactyl
+  echo -e "${CYAN}[+] Menyuntikkan Tema & Branding Raffiactly...${NC}"
+  cd /var/www/pterodactyl || exit
+  
+  # Download & Pasang Tema
+  wget -q -O raffi.zip https://github.com/gitfdil1248/thema/raw/main/C2.zip
+  unzip -o raffi.zip
+  cp -rfT /root/pterodactyl /var/www/pterodactyl
+  
+  # Ubah Nama Sistem Secara Total
+  sed -i "s/APP_NAME=.*/APP_NAME=Raffiactly/g" .env
+  find resources/views -type f -exec sed -i 's/Pterodactyl/Raffiactly/g' {} +
 
-# Ubah Nama Pterodactyl menjadi Raffiactly di semua file
-sed -i "s/APP_NAME=.*/APP_NAME=Raffiactly/g" .env
-find resources/views -type f -exec sed -i 's/Pterodactyl/Raffiactly/g' {} +
+  # --- FIX LOGIN & DATABASE ---
+  php artisan migrate --force
+  php artisan config:clear
+  php artisan view:clear
+  php artisan session:table
+  php artisan key:generate --force
 
-# --- 4. Fix Database & Akun Admin ---
-php artisan migrate --force
-php artisan config:clear
-php artisan view:clear
-php artisan session:table
-
-# Create Admin Login: admin@raffi.com | Pass: raffi123
-php artisan p:user:make <<EOF
+  # Buat Akun Admin (Bisa Login)
+  php artisan p:user:make <<EOF
 yes
 admin@raffi.com
 raffiadmin
@@ -67,26 +89,28 @@ Admin
 raffi123
 EOF
 
-# --- 5. Build Frontend & Permissions ---
-npm i -g yarn && yarn install && yarn build:production
-chown -R www-data:www-data /var/www/pterodactyl/*
-chmod -R 775 storage bootstrap/cache
+  # Build Production & Permissions
+  npm i -g yarn && yarn install && yarn build:production
+  chown -R www-data:www-data /var/www/pterodactyl/*
+  chmod -R 775 storage bootstrap/cache
+}
 
-# --- 6. Install Wings & Auto Create Node ---
-echo -e "${CYAN}[+] Memasang Wings & Menghubungkan VPS...${NC}"
-curl -sSL https://get.pterodactyl.io | bash -s -- --install-wings
-systemctl enable --now wings
+# --- 4. Install Wings & Node ---
+install_wings_node() {
+  echo -e "${BLUE}[+] Memasang Wings & Menghubungkan VPS...${NC}"
+  curl -sSL https://get.pterodactyl.io | bash -s -- --install-wings
+  systemctl enable --now wings
 
-# Create Location
-php artisan p:location:make <<EOF
+  # Create Location
+  php artisan p:location:make <<EOF
 Indonesia
 Raffiactly-Node
 EOF
 
-# Create Node Otomatis dengan IP VPS
-php artisan p:node:make <<EOF
+  # Create Node
+  php artisan p:node:make <<EOF
 Node-Raffiactly
-Created-By-Bot
+Auto-Created-By-Bot
 1
 https
 $(curl -s ifconfig.me)
@@ -103,4 +127,17 @@ no
 /var/lib/pterodactyl/volumes
 EOF
 
-echo -e "${GREEN}[✔] INSTALLASI RAFFIACTLY SELESAI TOTAL!${NC}"
+  systemctl restart nginx
+}
+
+# --- Jalankan Semua Fungsi ---
+display_welcome
+check_token
+install_panel
+install_wings_node
+
+echo -e "${GREEN}==================================================${NC}"
+echo -e "${CYAN}      RAFFIACTLY BERHASIL TERPASANG TOTAL!       ${NC}"
+echo -e "${WHITE}  Login Email: admin@raffi.com                   ${NC}"
+echo -e "${WHITE}  Login Pass : raffi123                          ${NC}"
+echo -e "${GREEN}==================================================${NC}"
