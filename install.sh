@@ -33,11 +33,11 @@ display_welcome() {
 # --- 2. Token Check ---
 check_token() {
   echo -ne "${YELLOW}MASUKKAN AKSES TOKEN : ${NC}"
-  read -r USER_TOKEN
-  if [ "$USER_TOKEN" != "raffi" ]; then
-    echo -e "${RED}[✘] TOKEN SALAH! HUBUNGI @Raffioffci2${NC}"
+ read -t 5 -r USER_TOKEN
+if [ "$USER_TOKEN" != "raffi" ]; then
+    echo "TOKEN SALAH!"
     exit 1
-  fi
+fi
 }
 
 # --- 3. Auto Install Panel & Branding ---
