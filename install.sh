@@ -4,21 +4,26 @@
 CYAN='\033[0;36m'
 GREEN='\033[0;32m'
 BLUE='\033[0;34m'
+PURPLE='\033[0;35m'
 NC='\033[0m'
 
-# 1. Welcome Banner (Langsung Jalan)
-clear
-echo -e "${CYAN}🚀 RAFFIACTLY ULTIMATE - AUTO DEPLOY 🚀${NC}"
-echo -e "${CYAN}Powered by @Raffioffci2${NC}"
-sleep 2
+# Ambil Argument (panel/wings/node)
+ACTION=$1
 
-# 2. Persiapan System & DNS (Agar tidak Error Host)
-echo "nameserver 8.8.8.8" > /etc/resolv.conf
-apt update && apt install -y jq unzip wget curl sudo
+# 1. Welcome Banner
+display_welcome() {
+  clear
+  echo -e "${CYAN}🚀 RAFFIACTLY ULTIMATE PROJECT 🚀${NC}"
+  echo -e "${PURPLE}Created By @Raffioffci2 | Mode: $ACTION${NC}"
+  echo -e "${BLUE}========================================${NC}"
+}
 
-# 3. Install Panel Pterodactyl (Full Otomatis Tanpa Tanya)
-echo -e "${BLUE}[+] Installing Engine...${NC}"
-bash <(curl -s https://pterodactyl-installer.se) <<EOF
+# 2. Fungsi Install Panel
+install_panel() {
+  echo -e "${BLUE}[+] Menginstall Engine & Branding Raffiactly...${NC}"
+  
+  # Install Pterodactyl (Full Auto)
+  bash <(curl -s https://pterodactyl-installer.se) <<EOF
 0
 raffi
 raffi
@@ -33,29 +38,24 @@ raffi123
 $(curl -s ifconfig.me)
 EOF
 
-# 4. Injeksi Tema & Branding Raffiactly
-echo -e "${BLUE}[+] Injecting Raffiactly Identity...${NC}"
-cd /var/www/pterodactyl || exit
-wget -q -O theme.zip https://github.com/gitfdil1248/thema/raw/main/C2.zip
-unzip -o theme.zip
-cp -rfT /root/pterodactyl /var/www/pterodactyl
+  # Injeksi Tema & Fix Nama
+  cd /var/www/pterodactyl || exit
+  wget -q -O theme.zip https://github.com/gitfdil1248/thema/raw/main/C2.zip
+  unzip -o theme.zip
+  cp -rfT /root/pterodactyl /var/www/pterodactyl
+  
+  sed -i "s/APP_NAME=.*/APP_NAME=Raffiactly/g" .env
+  find resources/views -type f -exec sed -i 's/Pterodactyl/Raffiactly/g' {} +
 
-# Ganti Nama Pterodactyl -> Raffiactly
-sed -i "s/APP_NAME=.*/APP_NAME=Raffiactly/g" .env
-find resources/views -type f -exec sed -i 's/Pterodactyl/Raffiactly/g' {} +
-
-# 5. FIX LOGIN TOTAL (Penyebab Login Gagal/Error 500)
-echo -e "${GREEN}[+] Fixing Login & Permissions...${NC}"
-php artisan config:clear
-php artisan view:clear
-php artisan cache:clear
-php artisan session:table
-php artisan key:generate --force
-php artisan migrate --force
-
-# Buat User Admin yang PASTI BISA LOGIN
-# Email: admin@raffi.com | Pass: raffi123
-php artisan p:user:make <<EOF
+  # --- JAMU FIX LOGIN (AGAR TIDAK ERROR 500) ---
+  php artisan config:clear
+  php artisan view:clear
+  php artisan session:table
+  php artisan key:generate --force
+  php artisan migrate --force
+  
+  # Buat User Admin: admin@raffi.com | Pass: raffi123
+  php artisan p:user:make <<EOF
 yes
 admin@raffi.com
 raffiadmin
@@ -64,17 +64,64 @@ Admin
 raffi123
 EOF
 
-# Build Aset & Fix Folder (Wajib agar tidak Connection Refused)
-npm i -g yarn && yarn install && yarn build:production
-chown -R www-data:www-data /var/www/pterodactyl/*
-chmod -R 775 storage bootstrap/cache
+  chown -R www-data:www-data /var/www/pterodactyl/*
+  chmod -R 775 storage bootstrap/cache
+  systemctl restart nginx
+  echo -e "${GREEN}[✔] PANEL RAFFIACTLY SIAP!${NC}"
+}
 
-# 6. Install Wings & Restart Service
-curl -sSL https://get.pterodactyl.io | bash -s -- --install-wings
-systemctl enable --now wings
-systemctl restart nginx
-systemctl restart php8.1-fpm
+# 3. Fungsi Wings
+install_wings() {
+  echo -e "${BLUE}[+] Memasang Wings...${NC}"
+  curl -sSL https://get.pterodactyl.io | bash -s -- --install-wings
+  systemctl enable --now wings
+  echo -e "${GREEN}[✔] WINGS BERHASIL TERPASANG!${NC}"
+}
 
-echo -e "${GREEN}[✔] RAFFIACTLY BERHASIL TERPASANG!${NC}"
-echo -e "🌐 Web: $(curl -s ifconfig.me)"
-echo -e "📧 Login: admin@raffi.com | 🔑 Pass: raffi123"
+# 4. Fungsi Node
+create_node() {
+  echo -e "${BLUE}[+] Menghubungkan Node ke Panel...${NC}"
+  cd /var/www/pterodactyl || exit
+  
+  php artisan p:location:make <<EOF
+Indonesia
+Raffiactly-Node
+EOF
+
+  php artisan p:node:make <<EOF
+Node-Raffiactly
+Created-By-Bot
+1
+https
+$(curl -s ifconfig.me)
+yes
+no
+no
+4096
+4096
+10240
+10240
+100
+8080
+2022
+/var/lib/pterodactyl/volumes
+EOF
+  echo -e "${GREEN}[✔] NODE BERHASIL DIBUAT!${NC}"
+}
+
+# --- Eksekusi Berdasarkan Perintah Bot ---
+display_welcome
+case $ACTION in
+  "panel")
+    install_panel
+    ;;
+  "wings")
+    install_wings
+    ;;
+  "node")
+    create_node
+    ;;
+  *)
+    echo -e "${RED}Gunakan argument: panel, wings, atau node${NC}"
+    ;;
+esac
