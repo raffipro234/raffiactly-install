@@ -1,106 +1,102 @@
+
 #!/bin/bash
 
 # Color
-BLUE='\033[0;34m'        
+BLUE='\033[0;34m'       
 RED='\033[0;31m'
 GREEN='\033[0;32m'
+YELLOW='\033[0;33m'
 CYAN='\033[0;36m'
 NC='\033[0m'
 
-# --- Identitas ---
 display_welcome() {
-  clear
-  echo -e "${BLUE}🚀 RAFFIACTLY ULTIMATE PROJECT - FULL AUTO BYPASS 🚀${NC}"
-  echo -e "${CYAN}Created By @Raffioffci2${NC}"
-  echo -e "-------------------------------------------------------"
+  clear
+  echo -e "${BLUE}[+] =============================================== [+]${NC}"
+  echo -e "${BLUE}[+]                                                 [+]${NC}"
+  echo -e "${CYAN}[+]                AUTO INSTALLER THEMA             [+]${NC}"
+  echo -e "${CYAN}[+]                  © RAFFIACTLY                   [+]${NC}"
+  echo -e "${BLUE}[+]                                                 [+]${NC}"
+  echo -e "${BLUE}[+] =============================================== [+]${NC}"
+  echo -e ""
+  echo -e "𝗧𝗘𝗟𝗘𝗚𝗥𝗔𝗠 : @Raffioffci2"
+  echo -e "𝗖𝗥𝗘𝗗𝗜𝗧𝗦  : Raffi"
+  sleep 3
 }
 
-# --- Token Check ---
+install_jq() {
+  echo -e "${BLUE}[+] Installing JQ...${NC}"
+  sudo apt update && sudo apt install -y jq unzip wget
+  clear
+}
+
 check_token() {
-  echo -en "${BLUE}[*] MASUKKAN AKSES TOKEN : ${NC}"
-  read -r USER_TOKEN
-  if [ "$USER_TOKEN" != "raffi" ]; then
-    echo -e "${RED}[X] TOKEN SALAH ATAU KOSONG!${NC}"
-    exit 1
-  fi
+  echo -e "${YELLOW}MASUKKAN AKSES TOKEN :${NC}"
+  read -r USER_TOKEN
+  if [ "$USER_TOKEN" != "raffi" ]; then
+    echo -e "${RED}Token Salah!${NC}"
+    exit 1
+  fi
+  clear
 }
 
-# --- Fix Error 403 & Install Panel ---
-install_panel() {
-  echo -e "${BLUE}[+] Memulai Instalasi & Perbaikan Permission...${NC}"
-  
-  # Generate Password Acak (Biar gak statis di script)
-  RANDOM_PASS=$(tr -dc A-Za-z0-9 </dev/urandom | head -c 12)
-  ADMIN_EMAIL="admin@$(curl -s ifconfig.me | tr '.' '-').com"
-
-  # Install Core
-  bash <(curl -s https://pterodactyl-installer.se) <<EOF
-0
-raffi
-raffi
-raffi
-raffi
-Asia/Jakarta
-$ADMIN_EMAIL
-$ADMIN_EMAIL
-raffiadmin
-Raffi
-$RANDOM_PASS
-$(curl -s ifconfig.me)
-EOF
-
-  # FORCE BRANDING & FIX 403
-  cd /var/www/pterodactyl || exit
-  sed -i "s/APP_NAME=.*/APP_NAME=Raffiactly/g" .env
-  sed -i "s/'name' => .*/'name' => 'Raffiactly',/g" config/app.php
-  
-  # Perbaikan Permission (Obat 403 Forbidden)
-  chmod -R 755 storage bootstrap/cache
-  chown -R www-data:www-data /var/www/pterodactyl/*
-  
-  # Finalisasi Database
-  php artisan config:clear
-  php artisan view:clear
-  php artisan migrate --force
-  systemctl restart nginx
-
-  # --- OUTPUT KE BOT / TERMINAL ---
-  echo -e "\n${GREEN}[✔] INSTALASI BERHASIL!${NC}"
-  echo -e "${CYAN}DETAIL LOGIN TELAH DI-GENERATE:${NC}"
-  echo -e "URL      : http://$(curl -s ifconfig.me)"
-  echo -e "User     : $ADMIN_EMAIL"
-  echo -e "Password : $RANDOM_PASS"
-  echo -e "-------------------------------------------------------"
-  echo -e "${RED}SIMPAN DATA INI, TIDAK ADA DI DALAM SCRIPT!${NC}"
-  sleep 5
+install_theme() {
+  # Pilih Tema (Sama seperti sebelumnya)
+  THEME_URL="https://github.com/gitfdil1248/thema/raw/main/C2.zip"
+  
+  cd /var/www/pterodactyl || exit
+  
+  echo -e "${BLUE}[+] Mendownload Assets Raffiactly...${NC}"
+  wget -q -O raffiactly.zip "$THEME_URL"
+  unzip -o raffiactly.zip
+  
+  # --- BAGIAN PALING PENTING: MENGUBAH NAMA PTERODACTYL MENJADI RAFFIACTLY ---
+  echo -e "${CYAN}[+] Mengubah Branding Sistem menjadi Raffiactly...${NC}"
+  
+  # Ubah di file .env (Nama Panel)
+  sed -i "s/APP_NAME=.*/APP_NAME=Raffiactly/g" .env
+  
+  # Ubah di file Konfigurasi App
+  sed -i "s/'name' => .*/'name' => 'Raffiactly',/g" config/app.php
+  
+  # Ubah paksa di file Blade (Tampilan Atas/Navbar)
+  find resources/views -type f -exec sed -i 's/Pterodactyl/Raffiactly/g' {} +
+  
+  # --- Proses Build ---
+  echo -e "${BLUE}[+] Memulai Build Production...${NC}"
+  sudo npm i -g yarn
+  yarn install
+  yarn build:production
+  
+  # Clear Cache agar perubahan langsung terlihat
+  php artisan view:clear
+  php artisan config:clear
+  php artisan cache:clear
+  
+  # Fix Permissions
+  sudo chown -R www-data:www-data /var/www/pterodactyl/*
+  
+  echo -e "${GREEN}[✔] RAFFIACTLY BERHASIL DIINSTAL!${NC}"
+  sleep 2
 }
 
-# --- Install Wings (Bypass DNS) ---
-install_wings() {
-  echo -e "${BLUE}[+] Install Wings via IP...${NC}"
-  IP_VPS=$(curl -s ifconfig.me)
-  bash <(curl -sL https://get.pterodactyl.io) <<EOF
-y
-y
-y
-y
-$IP_VPS
-EOF
-  systemctl enable --now wings
-}
-
-# --- Logic Menu ---
+# --- Jalankan Script ---
 display_welcome
+install_jq
 check_token
+install_theme
 
+# Menu Utama (Opsional untuk Wings/Node)
 while true; do
-  echo -e "\n1. Install Panel (Fix 403 & Auto Pass)"
-  echo "2. Install Wings"
-  echo "x. Exit"
-  read -p "Pilih: " PILIH
-  case "$PILIH" in
-    1) install_panel ;;
-    2) install_wings ;;
-    x) exit 0 ;;
-  esac
+  clear
+  echo -e "${CYAN}RAFFIACTLY DASHBOARD${NC}"
+  echo "1. Install Wings"
+  echo "2. Create Node"
+  echo "x. Exit"
+  read -r PILIH
+  case "$PILIH" in
+    1) curl -sSL https://get.pterodactyl.io | bash -s -- --install-wings ;;
+    2) # Jalankan fungsi create_node yang tadi
+       ;;
+    x) exit 0 ;;
+  esac
 done
