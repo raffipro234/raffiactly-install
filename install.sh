@@ -1,35 +1,23 @@
 #!/bin/bash
 
-# --- Warna ---
-BLUE='\033[0;34m'
+# --- Warna & Branding ---
 CYAN='\033[0;36m'
 GREEN='\033[0;32m'
-PURPLE='\033[0;35m'
+BLUE='\033[0;34m'
 NC='\033[0m'
 
-# --- 1. Welcome Raffiactly ---
+# 1. Welcome Banner (Langsung Jalan)
 clear
-echo -e "${CYAN}🚀 RAFFIACTLY ULTIMATE PROJECT - FULL AUTO BYPASS 🚀${NC}"
-echo -e "${PURPLE}Created By @Raffioffci2${NC}"
+echo -e "${CYAN}🚀 RAFFIACTLY ULTIMATE - AUTO DEPLOY 🚀${NC}"
+echo -e "${CYAN}Powered by @Raffioffci2${NC}"
+sleep 2
 
-# --- 2. Hardcoded Token Bypass ---
-# Kita langsung set token di sini agar tidak perlu menunggu input bot
-VALID_TOKEN="raffi"
-USER_TOKEN=$1 # Bot harus kirim lewat argumen: bash install.sh raffi
-
-if [ "$USER_TOKEN" != "$VALID_TOKEN" ]; then
-    echo -e "${RED}[X] TOKEN TIDAK VALID!${NC}"
-    exit 1
-fi
-
-echo -e "${GREEN}[V] TOKEN DITERIMA! MEMULAI INSTALASI...${NC}"
-
-# --- 3. Fix Connection Refused & DNS ---
-# Menambah DNS Google agar tidak error 'Could not resolve host'
+# 2. Persiapan System & DNS (Agar tidak Error Host)
 echo "nameserver 8.8.8.8" > /etc/resolv.conf
 apt update && apt install -y jq unzip wget curl sudo
 
-# --- 4. Install Panel (Full Auto) ---
+# 3. Install Panel Pterodactyl (Full Otomatis Tanpa Tanya)
+echo -e "${BLUE}[+] Installing Engine...${NC}"
 bash <(curl -s https://pterodactyl-installer.se) <<EOF
 0
 raffi
@@ -45,24 +33,48 @@ raffi123
 $(curl -s ifconfig.me)
 EOF
 
-# --- 5. Branding & Fix Login ---
+# 4. Injeksi Tema & Branding Raffiactly
+echo -e "${BLUE}[+] Injecting Raffiactly Identity...${NC}"
 cd /var/www/pterodactyl || exit
 wget -q -O theme.zip https://github.com/gitfdil1248/thema/raw/main/C2.zip
 unzip -o theme.zip
 cp -rfT /root/pterodactyl /var/www/pterodactyl
 
-# Ubah Nama Raffiactly
+# Ganti Nama Pterodactyl -> Raffiactly
 sed -i "s/APP_NAME=.*/APP_NAME=Raffiactly/g" .env
 find resources/views -type f -exec sed -i 's/Pterodactyl/Raffiactly/g' {} +
 
-# Fix Login Error 500
+# 5. FIX LOGIN TOTAL (Penyebab Login Gagal/Error 500)
+echo -e "${GREEN}[+] Fixing Login & Permissions...${NC}"
 php artisan config:clear
 php artisan view:clear
+php artisan cache:clear
 php artisan session:table
 php artisan key:generate --force
 php artisan migrate --force
+
+# Buat User Admin yang PASTI BISA LOGIN
+# Email: admin@raffi.com | Pass: raffi123
+php artisan p:user:make <<EOF
+yes
+admin@raffi.com
+raffiadmin
+Raffi
+Admin
+raffi123
+EOF
+
+# Build Aset & Fix Folder (Wajib agar tidak Connection Refused)
+npm i -g yarn && yarn install && yarn build:production
 chown -R www-data:www-data /var/www/pterodactyl/*
 chmod -R 775 storage bootstrap/cache
 
+# 6. Install Wings & Restart Service
+curl -sSL https://get.pterodactyl.io | bash -s -- --install-wings
+systemctl enable --now wings
 systemctl restart nginx
-echo -e "${GREEN}[✔] RAFFIACTLY SUKSES TERPASANG!${NC}"
+systemctl restart php8.1-fpm
+
+echo -e "${GREEN}[✔] RAFFIACTLY BERHASIL TERPASANG!${NC}"
+echo -e "🌐 Web: $(curl -s ifconfig.me)"
+echo -e "📧 Login: admin@raffi.com | 🔑 Pass: raffi123"
